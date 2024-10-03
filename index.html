@@ -1,0 +1,330 @@
+<!-- ?xml version='1.0' encoding='UTF-8'? -->
+<link href="/github-markdown-css/github-css.css" rel="stylesheet"/>
+<meta charset="utf-8" content="text/html"/>
+<div class="gist">
+<style class="formula-style">
+        svg.gh-md-to-html-formula {
+            fill: black;
+        }
+    </style>
+<div class="gist-file"> <!-- This is the class that is responsible for the boxing! -->
+<div class="gist-data">
+<div class="js-gist-file-update-container js-task-list-container file-box">
+<div class="file" id="user-content-article-Report">
+<div class="Box-body readme blob js-code-block-container p-5 p-xl-6" id="user-content-file-docker-image-pull-md-readme" style="margin-left: 40px; margin-right: 40px; margin-top: 20px; margin-bottom: 20px">
+<article class="markdown-body entry-content container-lg" itemprop="text">
+<div class="markdown-heading"><h1 class="heading-element">Sommelier's AI: Predicting Wine Quality with Supervised Learning Models</h1><a aria-label="Permalink: Sommelier's AI: Predicting Wine Quality with Supervised Learning Models" class="anchor" href="#user-content-sommeliers-ai-predicting-wine-quality-with-supervised-learning-models" id="user-content-sommeliers-ai-predicting-wine-quality-with-supervised-learning-models" name="user-content-sommeliers-ai-predicting-wine-quality-with-supervised-learning-models"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<br/>
+<p><strong>Authorship</strong><br/>
+<strong>Panagiotis S. Georgiadis</strong>, Graduate Student in Computer Science, University of Colorado Boulder.</p>
+<hr/>
+<br/>
+<br/>
+<p><strong>Abstract</strong><br/>
+In this project, I implemented a machine learning pipeline to predict the quality of red wine based on its physicochemical properties using various supervised learning techniques. Through this work, I explored the application of state-of-the-art methods for data preprocessing, feature selection, and model evaluation to develop an accurate predictive model. After experimenting with different algorithms, the XGBoost classifier combined with SMOTE-Tomek oversampling technique demonstrated the best overall performance. This document provides an in-depth analysis of the methodologies applied, the results obtained, and the insights gained.</p>
+<hr/>
+<br/>
+<div class="markdown-heading"><h2 class="heading-element">Introduction</h2><a aria-label="Permalink: Introduction" class="anchor" href="#user-content-introduction" id="user-content-introduction" name="user-content-introduction"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>My interest in this project was inspired by a personal experience I had while traveling through Greece for about a month. During this trip, I visited over 15 wineries with a close friend who is a major wine distributor in Boston. We tasted a variety of wines and compared their quality to decide which ones to import to the USA. Although I have an extensive knowledge of different wine varietals, their history, and flavor profiles, I found that the subjective nature of wine tasting and scoring could make it difficult for non-experts to evaluate wine quality accurately.</p>
+<p>The idea of using machine learning to objectively predict wine quality arose from this experience. By leveraging physicochemical tests and various chemical properties, I sought to develop a model that could accurately classify wine quality and assist both wine enthusiasts and professionals in making informed decisions. This project aims to bridge the gap between subjective wine tasting and objective evaluation by using data-driven methods.</p>
+<br/>
+<br/>
+<div class="markdown-heading"><h2 class="heading-element">Problem Definition</h2><a aria-label="Permalink: Problem Definition" class="anchor" href="#user-content-problem-definition" id="user-content-problem-definition" name="user-content-problem-definition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The primary objective of this project is to classify wine quality into three categories — <strong>Low</strong>, <strong>Medium</strong>, and <strong>High</strong> — using the chemical properties of the wine as input features. The original dataset, obtained from the UCI Machine Learning Repository, contains 1,599 samples of red wine, each with 11 distinct physicochemical attributes and a quality score ranging from 0 to 10.</p>
+<div class="markdown-heading"><h3 class="heading-element">Problem Statement</h3><a aria-label="Permalink: Problem Statement" class="anchor" href="#user-content-problem-statement" id="user-content-problem-statement" name="user-content-problem-statement"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Given a set of chemical properties of wine (e.g., acidity, alcohol content, and residual sugar), the goal is to build a machine learning model that can classify wine quality into <code>Low</code>, <code>Medium</code>, or <code>High</code>. This classification problem will be addressed by experimenting with various supervised learning models and optimizing them to achieve high accuracy, precision, recall, and F1-score.</p>
+<div class="markdown-heading"><h3 class="heading-element">Target Variable</h3><a aria-label="Permalink: Target Variable" class="anchor" href="#user-content-target-variable" id="user-content-target-variable" name="user-content-target-variable"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>
+<code>Quality</code> (Converted into three classes: <code>Low</code>, <code>Medium</code>, <code>High</code>)</li>
+</ul>
+<div class="markdown-heading"><h3 class="heading-element">Features</h3><a aria-label="Permalink: Features" class="anchor" href="#user-content-features" id="user-content-features" name="user-content-features"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<ul>
+<li>Fixed Acidity</li>
+<li>Volatile Acidity</li>
+<li>Citric Acid</li>
+<li>Residual Sugar</li>
+<li>Chlorides</li>
+<li>Free Sulfur Dioxide</li>
+<li>Total Sulfur Dioxide</li>
+<li>Density</li>
+<li>pH</li>
+<li>Sulphates</li>
+<li>Alcohol</li>
+</ul>
+<br/>
+<br/>
+<div class="markdown-heading"><h2 class="heading-element">Dataset and Exploratory Data Analysis (EDA)</h2><a aria-label="Permalink: Dataset and Exploratory Data Analysis (EDA)" class="anchor" href="#user-content-dataset-and-exploratory-data-analysis-eda" id="user-content-dataset-and-exploratory-data-analysis-eda" name="user-content-dataset-and-exploratory-data-analysis-eda"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<br/>
+<div class="markdown-heading"><h3 class="heading-element">Dataset</h3><a aria-label="Permalink: Dataset" class="anchor" href="#user-content-dataset" id="user-content-dataset" name="user-content-dataset"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<pre><code>    fixed acidity  volatile acidity  citric acid  residual sugar  chlorides  
+0            7.4              0.70         0.00             1.9      0.076   
+1            7.8              0.88         0.00             2.6      0.098   
+2            7.8              0.76         0.04             2.3      0.092   
+3           11.2              0.28         0.56             1.9      0.075   
+4            7.4              0.70         0.00             1.9      0.076   
+
+   free sulfur dioxide  total sulfur dioxide  density    pH  sulphates  
+0                 11.0                  34.0   0.9978  3.51       0.56   
+1                 25.0                  67.0   0.9968  3.20       0.68   
+2                 15.0                  54.0   0.9970  3.26       0.65   
+3                 17.0                  60.0   0.9980  3.16       0.58   
+4                 11.0                  34.0   0.9978  3.51       0.56   
+
+   alcohol  quality  
+0      9.4        5  
+1      9.8        5  
+2      9.8        5  
+3      9.8        6  
+4      9.4        5  
+</code></pre>
+<br/>
+<div class="markdown-heading"><h3 class="heading-element">Data Description Example</h3><a aria-label="Permalink: Data Description Example" class="anchor" href="#user-content-data-description-example" id="user-content-data-description-example" name="user-content-data-description-example"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<pre><code>        fixed acidity  volatile acidity  citric acid  residual sugar 
+count    1599.000000       1599.000000  1599.000000     1599.000000   
+mean        8.319637          0.527821     0.270976        2.538806   
+std         1.741096          0.179060     0.194801        1.409928   
+min         4.600000          0.120000     0.000000        0.900000   
+25%         7.100000          0.390000     0.090000        1.900000   
+50%         7.900000          0.520000     0.260000        2.200000   
+75%         9.200000          0.640000     0.420000        2.600000   
+max        15.900000          1.580000     1.000000       15.500000   
+</code></pre>
+<br/>
+<br/>
+<br/>
+<div class="markdown-heading"><h3 class="heading-element">Data Visualizations</h3><a aria-label="Permalink: Data Visualizations" class="anchor" href="#user-content-data-visualizations" id="user-content-data-visualizations" name="user-content-data-visualizations"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p><a href="/images/distribution_wine_quality.png" rel="noopener noreferrer" target="_blank"><img alt="Distribution of Wine Quality" data-canonical-src="/images/distribution_wine_quality.png" src="/images/distribution_wine_quality.png" style="max-width: 100%; max-height: 547px;"/></a></p>
+<p><a href="/images/correlation_matrix.png" rel="noopener noreferrer" target="_blank"><img alt="Correlation Matrix" data-canonical-src="/images/correlation_matrix.png" src="/images/correlation_matrix.png" style="max-width: 100%; max-height: 798px;"/></a></p>
+<hr/>
+<div class="markdown-heading"><h2 class="heading-element">Methodology</h2><a aria-label="Permalink: Methodology" class="anchor" href="#user-content-methodology" id="user-content-methodology" name="user-content-methodology"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element">Data Preprocessing</h3><a aria-label="Permalink: Data Preprocessing" class="anchor" href="#user-content-data-preprocessing" id="user-content-data-preprocessing" name="user-content-data-preprocessing"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The dataset was first preprocessed to handle missing values and ensure data consistency. This involved:</p>
+<ol>
+<li>
+<p><strong>Check for missing values in the dataset</strong>:</p>
+<pre><code>fixed acidity           0  
+volatile acidity        0  
+citric acid             0  
+residual sugar          0  
+chlorides               0  
+free sulfur dioxide     0  
+total sulfur dioxide    0  
+density                 0  
+pH                      0  
+sulphates               0  
+alcohol                 0  
+quality                 0  
+</code></pre>
+</li>
+<li>
+<p><strong>Converting the Target Variable</strong>:</p>
+<ul>
+<li>The <code>quality</code> variable was transformed into a categorical variable with three classes: <code>Low</code> (quality ≤ 5), <code>Medium</code> (5 &lt; quality ≤ 7), and <code>High</code> (quality &gt; 7).</li>
+<li>This transformation enables us to treat the problem as a classification task rather than a regression problem.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for target variable transformation</span>
+<span class="pl-s1">data</span>[<span class="pl-s">'quality_label'</span>] <span class="pl-c1">=</span> <span class="pl-s1">data</span>[<span class="pl-s">'quality'</span>].<span class="pl-en">apply</span>(<span class="pl-k">lambda</span> <span class="pl-s1">x</span>: <span class="pl-s">'Low'</span> <span class="pl-k">if</span> <span class="pl-s1">x</span> <span class="pl-c1">&lt;=</span> <span class="pl-c1">5</span> <span class="pl-k">else</span> (<span class="pl-s">'Medium'</span> <span class="pl-k">if</span> <span class="pl-s1">x</span> <span class="pl-c1">&lt;=</span> <span class="pl-c1">7</span> <span class="pl-k">else</span> <span class="pl-s">'High'</span>))</pre></div>
+</li>
+<li>
+<p><strong>Standardizing the Features</strong>:</p>
+<ul>
+<li>To ensure that all features contribute equally to the model, numerical features were standardized using <code>StandardScaler</code>. This step is crucial for models that are sensitive to feature scaling, such as Logistic Regression and Gradient Boosting.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for feature scaling</span>
+<span class="pl-s1">scaler</span> <span class="pl-c1">=</span> <span class="pl-v">StandardScaler</span>()
+<span class="pl-v">X_scaled</span> <span class="pl-c1">=</span> <span class="pl-s1">scaler</span>.<span class="pl-en">fit_transform</span>(<span class="pl-v">X</span>)</pre></div>
+</li>
+<li>
+<p><strong>Handling Class Imbalance</strong>:</p>
+<ul>
+<li>The dataset exhibited a severe class imbalance, with most samples belonging to the <code>Medium</code> class and very few in the <code>High</code> class.</li>
+<li>This issue was addressed using two resampling techniques:
+<ul>
+<li>
+<strong>SMOTE (Synthetic Minority Over-sampling Technique)</strong>: Generated synthetic samples to balance the minority class.</li>
+<li>
+<strong>SMOTE-Tomek</strong>: A combination of SMOTE and Tomek links was used to create a balanced dataset while also reducing class overlap by removing noisy samples.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for applying SMOTE and SMOTE-Tomek</span>
+<span class="pl-s1">smote</span> <span class="pl-c1">=</span> <span class="pl-v">SMOTE</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>)
+<span class="pl-v">X_train_smote</span>, <span class="pl-s1">y_train_smote</span> <span class="pl-c1">=</span> <span class="pl-s1">smote</span>.<span class="pl-en">fit_resample</span>(<span class="pl-v">X_train</span>, <span class="pl-s1">y_train</span>)
+
+<span class="pl-s1">smote_tomek</span> <span class="pl-c1">=</span> <span class="pl-v">SMOTETomek</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>)
+<span class="pl-v">X_train_smote_tomek</span>, <span class="pl-s1">y_train_smote_tomek</span> <span class="pl-c1">=</span> <span class="pl-s1">smote_tomek</span>.<span class="pl-en">fit_resample</span>(<span class="pl-v">X_train</span>, <span class="pl-s1">y_train</span>)</pre></div>
+<ul>
+<li>The initial class distribution was highly imbalanced, with the majority of wines labeled as "Medium" quality and very few labeled as "High" quality. This was addressed using Synthetic Minority Over-sampling Technique (SMOTE) and SMOTE-Tomek.</li>
+</ul>
+<pre><code>Class distribution before SMOTE:  
+Medium    663  
+Low       603  
+High       13  
+
+Class distribution after SMOTE:  
+Medium    663  
+Low       663  
+High      663  
+
+Class distribution after SMOTE-Tomek:  
+High      663  
+Medium    621  
+Low       621  
+</code></pre>
+</li>
+</ol>
+<div class="markdown-heading"><h3 class="heading-element">Model Training and Evaluation</h3><a aria-label="Permalink: Model Training and Evaluation" class="anchor" href="#user-content-model-training-and-evaluation" id="user-content-model-training-and-evaluation" name="user-content-model-training-and-evaluation"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Several supervised learning models were applied, and their performances were compared using various evaluation metrics such as accuracy, precision, recall, and F1-score.</p>
+<ol>
+<li>
+<p><strong>Random Forest Classifier</strong>:</p>
+<ul>
+<li>An ensemble model that uses multiple decision trees to improve prediction accuracy and reduce overfitting.</li>
+<li>The Random Forest model was first trained using the balanced dataset created by SMOTE. It achieved an accuracy of approximately 78.7%, demonstrating robust performance in predicting the <code>Medium</code> and <code>Low</code> quality classes.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for training Random Forest model</span>
+<span class="pl-s1">rf_classifier</span> <span class="pl-c1">=</span> <span class="pl-v">RandomForestClassifier</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>, <span class="pl-s1">class_weight</span><span class="pl-c1">=</span><span class="pl-s">'balanced'</span>)
+<span class="pl-s1">rf_classifier</span>.<span class="pl-en">fit</span>(<span class="pl-v">X_train_smote</span>, <span class="pl-s1">y_train_smote</span>)</pre></div>
+<p><strong>Performance Metrics:</strong></p>
+<pre><code>Accuracy: 0.7875  
+Precision: 0.785446716357776  
+Recall: 0.7875  
+F1-Score: 0.7863080888906897  
+Confusion Matrix:  
+[[  0   0   5]  
+ [  0 114  27]  
+ [  4  32 138]]
+</code></pre>
+</li>
+<li>
+<p><strong>Logistic Regression</strong>:</p>
+<ul>
+<li>A linear model used as a baseline classifier.</li>
+<li>Logistic Regression had a lower accuracy of around 61.5%, serving as a reference for more complex models.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for training Logistic Regression model</span>
+<span class="pl-s1">lr_classifier</span> <span class="pl-c1">=</span> <span class="pl-v">LogisticRegression</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>, <span class="pl-s1">class_weight</span><span class="pl-c1">=</span><span class="pl-s">'balanced'</span>, <span class="pl-s1">max_iter</span><span class="pl-c1">=</span><span class="pl-c1">1000</span>)
+<span class="pl-s1">lr_classifier</span>.<span class="pl-en">fit</span>(<span class="pl-v">X_train_smote</span>, <span class="pl-s1">y_train_smote</span>)</pre></div>
+<p><strong>Performance Metrics:</strong></p>
+<pre><code>Accuracy: 0.615625  
+Precision: 0.7213290111137989  
+Recall: 0.615625  
+F1-Score: 0.6411491135015758  
+Confusion Matrix:  
+[[  5   0   0]  
+ [  7 110  24]  
+ [ 40  52  82]]
+</code></pre>
+</li>
+<li>
+<p><strong>Feature Selection Using Recursive Feature Elimination (RFE)</strong>:</p>
+<ul>
+<li>RFE was used with Logistic Regression as the base model to select the top 5 features that contributed the most to the classification task.</li>
+<li>A new Random Forest model was then trained using these selected features, achieving an accuracy of 78.4%, which was comparable to the performance of the original Random Forest.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for Recursive Feature Elimination (RFE)</span>
+<span class="pl-s1">rfe</span> <span class="pl-c1">=</span> <span class="pl-v">RFE</span>(<span class="pl-s1">estimator</span><span class="pl-c1">=</span><span class="pl-v">LogisticRegression</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>, <span class="pl-s1">class_weight</span><span class="pl-c1">=</span><span class="pl-s">'balanced'</span>), <span class="pl-s1">n_features_to_select</span><span class="pl-c1">=</span><span class="pl-c1">5</span>)
+<span class="pl-s1">rfe</span>.<span class="pl-en">fit</span>(<span class="pl-v">X_train_smote</span>, <span class="pl-s1">y_train_smote</span>)
+<span class="pl-s1">selected_features</span> <span class="pl-c1">=</span> <span class="pl-v">X</span>.<span class="pl-s1">columns</span>[<span class="pl-s1">rfe</span>.<span class="pl-s1">support_</span>]</pre></div>
+<p><a href="/images/feature_importance.png" rel="noopener noreferrer" target="_blank"><img alt="Feature Importance" data-canonical-src="/images/feature_importance.png" src="/images/feature_importance.png" style="max-width: 100%; max-height: 547px;"/></a></p>
+</li>
+<li>
+<p><strong>Gradient Boosting Classifier</strong>:</p>
+<ul>
+<li>An ensemble technique that builds decision trees sequentially, with each tree correcting the errors of the previous ones.</li>
+<li>After hyperparameter tuning using GridSearchCV, the best Gradient Boosting model achieved an accuracy of 76.2%.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for training Gradient Boosting model with hyperparameter tuning</span>
+<span class="pl-s1">param_grid</span> <span class="pl-c1">=</span> {<span class="pl-s">'n_estimators'</span>: [<span class="pl-c1">50</span>, <span class="pl-c1">100</span>, <span class="pl-c1">200</span>], <span class="pl-s">'learning_rate'</span>: [<span class="pl-c1">0.01</span>, <span class="pl-c1">0.1</span>, <span class="pl-c1">0.2</span>], <span class="pl-s">'max_depth'</span>: [<span class="pl-c1">3</span>, <span class="pl-c1">5</span>, <span class="pl-c1">7</span>]}
+<span class="pl-s1">gb_classifier</span> <span class="pl-c1">=</span> <span class="pl-v">GradientBoostingClassifier</span>(<span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>)
+<span class="pl-s1">grid_search</span> <span class="pl-c1">=</span> <span class="pl-v">GridSearchCV</span>(<span class="pl-s1">estimator</span><span class="pl-c1">=</span><span class="pl-s1">gb_classifier</span>, <span class="pl-s1">param_grid</span><span class="pl-c1">=</span><span class="pl-s1">param_grid</span>, <span class="pl-s1">cv</span><span class="pl-c1">=</span><span class="pl-c1">5</span>, <span class="pl-s1">scoring</span><span class="pl-c1">=</span><span class="pl-s">'accuracy'</span>, <span class="pl-s1">n_jobs</span><span class="pl-c1">=</span><span class="pl-c1">-</span><span class="pl-c1">1</span>)
+<span class="pl-s1">grid_search</span>.<span class="pl-en">fit</span>(<span class="pl-v">X_train_smote_tomek</span>, <span class="pl-s1">y_train_smote_tomek</span>)</pre></div>
+</li>
+<li>
+<p><strong>XGBoost Classifier</strong>:</p>
+<ul>
+<li>XGBoost, a highly efficient and scalable implementation of gradient boosting, was used as the final model.</li>
+<li>After fine-tuning, the XGBoost model combined with SMOTE-Tomek obtained the highest accuracy of 79.0%. This model demonstrated the best balance between all evaluation metrics and was able to handle the class imbalance effectively.</li>
+</ul>
+<div class="highlight highlight-source-python"><pre><span class="pl-c"># Pseudocode for training XGBoost model</span>
+<span class="pl-s1">xgb_classifier</span> <span class="pl-c1">=</span> <span class="pl-v">XGBClassifier</span>(<span class="pl-s1">objective</span><span class="pl-c1">=</span><span class="pl-s">'multi:softmax'</span>, <span class="pl-s1">eval_metric</span><span class="pl-c1">=</span><span class="pl-s">'mlogloss'</span>, <span class="pl-s1">random_state</span><span class="pl-c1">=</span><span class="pl-c1">42</span>)
+<span class="pl-s1">grid_search_xgb</span> <span class="pl-c1">=</span> <span class="pl-v">GridSearchCV</span>(<span class="pl-s1">estimator</span><span class="pl-c1">=</span><span class="pl-s1">xgb_classifier</span>, <span class="pl-s1">param_grid</span><span class="pl-c1">=</span><span class="pl-s1">param_grid</span>, <span class="pl-s1">cv</span><span class="pl-c1">=</span><span class="pl-c1">5</span>, <span class="pl-s1">scoring</span><span class="pl-c1">=</span><span class="pl-s">'accuracy'</span>, <span class="pl-s1">n_jobs</span><span class="pl-c1">=</span><span class="pl-c1">-</span><span class="pl-c1">1</span>)
+<span class="pl-s1">grid_search_xgb</span>.<span class="pl-en">fit</span>(<span class="pl-v">X_train_smote_tomek</span>, <span class="pl-s1">y_train_smote_tomek_encoded</span>)</pre></div>
+<p><strong>Performance Metrics:</strong></p>
+<pre><code>Accuracy: 0.790625  
+Precision: 0.7947610445912469  
+Recall: 0.790625  
+F1-Score: 0.7926105251845167  
+Confusion Matrix:  
+[[  1   0   4]  
+ [  0 112  29]  
+ [  6  28 140]]
+</code></pre>
+</li>
+</ol>
+<hr/>
+<div class="markdown-heading"><h2 class="heading-element">Results and Analysis</h2><a aria-label="Permalink: Results and Analysis" class="anchor" href="#user-content-results-and-analysis" id="user-content-results-and-analysis" name="user-content-results-and-analysis"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The results from all models were compared using a set of evaluation metrics. The following table summarizes the performance of each model:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Accuracy</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1-Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random Forest (Original)</td>
+<td>78.75%</td>
+<td>78.54%</td>
+<td>78.75%</td>
+<td>78.63%</td>
+</tr>
+<tr>
+<td>Random Forest (Selected Features)</td>
+<td>78.44%</td>
+<td>78.58%</td>
+<td>78.44%</td>
+<td>78.45%</td>
+</tr>
+<tr>
+<td>Gradient Boosting</td>
+<td>76.25%</td>
+<td>76.26%</td>
+<td>76.25%</td>
+<td>76.25%</td>
+</tr>
+<tr>
+<td>XGBoost (SMOTE-Tomek)</td>
+<td>79.06%</td>
+<td>79.48%</td>
+<td>79.06%</td>
+<td>79.26%</td>
+</tr>
+</tbody>
+</table>
+<p><a href="/images/results.png" rel="noopener noreferrer" target="_blank"><img alt="Results" data-canonical-src="/images/results.png" src="/images/results.png" style="max-width: 100%; max-height: 985px;"/></a></p>
+<hr/>
+<div class="markdown-heading"><h2 class="heading-element">Conclusion</h2><a aria-label="Permalink: Conclusion" class="anchor" href="#user-content-conclusion" id="user-content-conclusion" name="user-content-conclusion"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The project successfully demonstrated the application of various supervised learning models to predict wine quality based on its chemical properties. The use of resampling techniques such as SMOTE and SMOTE</p>
+<p>-Tomek helped overcome class imbalance issues, resulting in improved model performance. The XGBoost classifier emerged as the best-performing model, with the highest accuracy, precision, recall, and F1-score.</p>
+<p>Through this project, I gained hands-on experience in handling class imbalance, implementing feature selection, and tuning hyperparameters. The project not only enhanced my understanding of supervised learning algorithms but also provided insights into the practical challenges of building robust machine learning models for real-world data.</p>
+<div class="markdown-heading"><h2 class="heading-element">Future Work</h2><a aria-label="Permalink: Future Work" class="anchor" href="#user-content-future-work" id="user-content-future-work" name="user-content-future-work"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>For future iterations of this project, I would explore additional feature engineering techniques and experiment with deep learning models to further enhance prediction accuracy. Additionally, deploying this model in a web application could enable real-time predictions for new wine samples.</p>
+<hr/>
+<div class="markdown-heading"><h3 class="heading-element">About Me</h3><a aria-label="Permalink: About Me" class="anchor" href="#user-content-about-me" id="user-content-about-me" name="user-content-about-me"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>I am a graduate student specializing in computer science, with a particular interest in cloud engineering and machine learning. I have a passion for applying cutting-edge machine learning techniques to solve real-world problems. This project on wine quality prediction stems from my personal experience and extensive research in this field. I have combined my knowledge of data science with my personal understanding of wine varietals to develop a machine learning model that bridges the gap between subjective tasting experiences and objective evaluation using physicochemical properties.</p>
+<hr/>
+<p><strong>Keywords</strong>: Supervised Learning, Wine Quality Prediction, XGBoost, Random Forest, Logistic Regression, Gradient Boosting, SMOTE, Feature Selection, Machine Learning, Classification.</p>
+<hr/>
+</article>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
